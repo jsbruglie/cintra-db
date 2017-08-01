@@ -1,0 +1,6 @@
+# compiled code
+build/*
+# code distributions
+dist/*
+# ignore icon files
+*.ico
