@@ -1,18 +1,28 @@
+# GUI
 import Tkinter as tk
 import ttk
 import tkFont, tkFileDialog, tkMessageBox
-
+# Open CSV files
 import csv
-
+# Open Developer URL
 import webbrowser
-
+# Windows specific behavior
 import platform
 import ctypes
+# Debug
+import pprint
+
+# TODO - Maybe use sqlite3 for fast db processing?
+
+# Application properties
 
 APP_TITLE = "Cintra-DB"
-APP_VERSION = "v0.05"
+APP_VERSION = "v0.06"
 APP_AUTHOR = "Joao Borrego"
 AUTHOR_URL = "https://github.com/jsbruglie"
+
+# TODO - Debug
+pp = pprint.PrettyPrinter(indent=4)
 
 # Generic Utilities
 
@@ -41,6 +51,29 @@ def openLink(link):
     """
     webbrowser.open_new(link)
 
+def preProcDb(data):
+    """ Applies preprecessing to the database """
+
+    # Domain-specific!
+    new_data = removeNCharsFromCol(data, n=13, col=10, start=True)
+    return new_data
+
+def removeNCharsFromCol(data, n, col, start):
+    """ Removes n characters from the value of a given column 
+        for every row either from the start or the end of
+        the string
+        :param data: The data to process
+        :param n: The number of characters
+        :param col: The index of the column to alter
+        :param start: Remove from start (True) or end (False)
+    """
+    for i in range(len(data)):
+        try:
+            data[i][col] =  data[i][col][n:] if start else data[i][col][:-n]
+        except IndexError:
+            pass # Empty field
+    return data
+
 class MainApp(tk.Frame):
     """ Main App class """
 
@@ -51,7 +84,7 @@ class MainApp(tk.Frame):
         try:
             self.parent.iconbitmap(default="logo.ico")
         except tk.TclError:
-            pass
+            pass # Icon image not present, load default
         self.parent.minsize(width=300, height=200)
         self.parent.maxsize(width=parent.winfo_screenwidth(), 
                             height=parent.winfo_screenheight())
@@ -62,6 +95,7 @@ class MainApp(tk.Frame):
         self.setupWidgets()
 
     def setupWidgets(self):
+        """ Declare and initialize widgets """
 
         # Allow frame to be extended
         self.pack(fill="both", expand=True)
@@ -99,7 +133,7 @@ class MainApp(tk.Frame):
         parent.bind("<Button-3>", self.popup)
 
     def popup(self, event):
-        # Show popup menu on event
+        """ Show popup menu on event """
         self.popup_menu.post(event.x_root, event.y_root)
 
     def createTree(self):
@@ -139,6 +173,7 @@ class MainApp(tk.Frame):
             self.tree.insert("","end", values=row)
 
     def onSelectAll(self, event=None):
+        """ Select all the entries in the tree view table"""
         selected = [child for child in self.tree.get_children('')]
         for item in selected:
             self.tree.selection_add(item)
@@ -157,10 +192,11 @@ class MainApp(tk.Frame):
         new_instance = MainApp(new_window)
 
     def onMousewheel(self, event):
+        """ Scroll treeview table vertically """
         self.tree.yview_scroll(-1*(event.delta/120), "units")
 
     def sortBy(self, tree, col, descending):
-        
+        """ Sort the treeview rows according to the value of a given column """ 
         data = [(tree.set(child, col), child) for child in tree.get_children('')]
         try:
             data.sort(key=lambda tup: int(tup[0]), reverse=descending)
@@ -176,18 +212,22 @@ class MainApp(tk.Frame):
 
     # Menu commands
     def onOpen(self):
-        global tree_header, tree_data
-
+        """ Open CSV file to memory """
         file_types = [('CSV files', '*.csv'), ('All files', '*')]
-        dialogue = tkFileDialog.Open(self, filetypes = file_types)
+        dialogue = tkFileDialog.Open(self, filetypes=file_types)
         file_path = dialogue.show()
 
         if file_path != '':
             with open(file_path, "r") as csv_file:
-                csv_file.seek(3,1) # Skip initial 3 garbage bytes; Don't ask
+                # Skip initial 3 garbage bytes; Don't ask
+                csv_file.seek(3,1)
                 reader = csv.reader(csv_file)
                 self.header = list(reader.next())
                 self.data = map(list, reader)
+
+                # Data preprocess
+                self.data = preProcDb(self.data)
+
                 self.createTree()
                 raiseAboveAll(self.parent)
                 #self.tree["displaycolumns"]=("num_processo")
@@ -205,8 +245,6 @@ class MainApp(tk.Frame):
         app_title.pack()
         app_version.pack()
         app_author.pack()
-
-
 
 def main():
 
