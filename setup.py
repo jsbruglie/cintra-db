@@ -17,4 +17,6 @@ setup(
 )
 
 # Copy logo file
-copyfile("logo.ico", "dist\logo.ico")
+copyfile("src\logo.ico", "dist\logo.ico")
+# Copy default preproc file
+copyfile("src\preproc.csv", "dist\preproc.csv")

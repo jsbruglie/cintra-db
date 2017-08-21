@@ -4,3 +4,5 @@ build/*
 dist/*
 # ignore icon files
 *.ico
+# ignore file preprocessing options file
+preproc.csv
