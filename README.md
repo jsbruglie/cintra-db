@@ -1,4 +1,6 @@
-# cintra-db
+# csv-tools
 
-A simple CSV tool for domain specific searches.
-This was written for my dad, in the hope that he can optimize his workflow.
+A simple CSV tool with GUI Tkinter interface.
+
+It allows for some preprocessing options as well as basic filtering.
+Written for Python 2.7X as it is compiled with ```py2exe``` 
