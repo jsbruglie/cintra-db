@@ -125,6 +125,9 @@ def preProcDb(data, changes):
             [num_chars, col, start] = [int(change[2]), int(change[3]), (change[4]=='True')]
             new_data = removeNCharsFromCol(new_data,
                 n=num_chars, col=col, start=start)
+        elif (change[1] == "removeEntries"):
+            [num_entries, start] = [int(change[2]), (change[3]=='True')]
+            new_data = removeEntries(data, num_entries, start)
 
     return new_data
 
@@ -142,6 +145,11 @@ def removeNCharsFromCol(data, n, col, start):
             data[i][col] =  data[i][col][n:] if start else data[i][col][:-n]
         except IndexError:
             pass # Empty field
+    return data
+
+def removeEntries(data, n, start):
+    """ Removes n entries from the begining or end of the table """
+    data = data[n:] if start else data[0:-n]
     return data
 
 class MainApp(tk.Frame):
@@ -282,6 +290,9 @@ class MainApp(tk.Frame):
 
     def sortBy(self, tree, col, descending):
         """ Sort the treeview rows according to the value of a given column """ 
+        
+        col_idx = self.header.index(col)
+
         data = [(tree.set(child, col), child) for child in tree.get_children('')]
         try:
             data.sort(key=lambda tup: float(tup[0]), reverse=descending)
@@ -294,6 +305,12 @@ class MainApp(tk.Frame):
         # switch the heading so that it will sort in the opposite direction
         tree.heading(col,
             command=lambda col=col: self.sortBy(tree, col, int(not descending)))
+
+        # Sort actual data
+        try:
+            self.data.sort(key=lambda tup: float(tup[col_idx]), reverse=descending)
+        except ValueError:
+            self.data.sort(key=lambda tup: tup[col_idx], reverse=descending)
 
     # Menu commands
 
