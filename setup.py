@@ -12,7 +12,7 @@ setup(
                             'optimize': 2,
                             'includes':includes}},
     # comment if console output is desired
-    windows = [{'script': "src\cintra-db.py"}],
+    windows = [{'script': "src\csv-tools.py"}],
     zipfile = None,
 )
 
