@@ -248,14 +248,8 @@ class MainApp(tk.Frame):
                 command=lambda c=col: self.sortBy(self.tree, c, 0))
             self.tree.column(col, width=tkFont.Font().measure(col.title()))
 
-        odd_row = True
         for row in self.data:
-            self.tree.insert("","end", values=row,
-                tag= (('oddrow,')) if odd_row else (('evenrow')) )
-            odd_row = not odd_row
-
-        self.tree.tag_configure('oddrow', background='#383838')
-        self.tree.tag_configure('evenrow', background='#4d4d4d')
+            self.tree.insert("","end", values=row)
 
     def onSelectAll(self, event=None):
         """ Select all the entries in the tree view table"""
